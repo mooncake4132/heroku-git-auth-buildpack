@@ -1,0 +1,21 @@
+#!/bin/bash
+# bin/compile <build-dir> <cache-dir> <env-path>
+
+CACHE_DIR=$2
+ENV_DIR=$3
+
+if [[ -f $ENV_DIR/GIT_USERNAME && -f $ENV_DIR/GIT_PASSWORD ]]; then
+    askpass_bin=`mktemp $2/XXXXXXXX`
+
+    # Git AskPass executable to echo git password
+    echo '#!/bin/sh' >> $askpass_bin
+    echo 'cat $ENV_DIR/GIT_PASSWORD' >> $askpass_bin
+
+    username=`cat $ENV_DIR/GIT_USERNAME`
+
+    git config --global credential.username $username
+    git config --global core.askPass $askpass_bin
+    chmod +x $askpass_bin
+
+    echo "-----> Set git username to $username and askPass path to $askpass_bin."
+fi
